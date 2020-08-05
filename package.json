@@ -1,0 +1,64 @@
+{
+  "name": "log",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/lib/index.js",
+  "scripts": {
+    "commitlint": "commitlint --color",
+    "test": "jest --coverage",
+    "build": "tsc",
+    "dev": "tsc --watch --sourceMap",
+    "dev:js-ins": "NODE_OPTIONS=--inspect node ./index.js",
+    "dev:js": "node ./index.js",
+    "lint": "eslint --ext .ts .",
+    "lint:fix": "eslint --fix --ext .ts ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "cookie": "^0.4.1",
+    "got": "^11.5.0",
+    "ip": "^1.1.5",
+    "lodash": "^4.17.15",
+    "moment": "^2.27.0",
+    "querystring": "^0.2.0",
+    "server-inspect-proxy": "^1.0.3",
+    "urllib": "^2.36.1",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "^4.5.0",
+    "winston-transport": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/cookie": "^0.4.0",
+    "@types/got": "^9.6.11",
+    "@types/ip": "^1.1.0",
+    "@types/jest": "^26.0.3",
+    "@types/moment": "^2.13.0",
+    "@typescript-eslint/eslint-plugin": "^3.4.0",
+    "@typescript-eslint/parser": "^3.4.0",
+    "eslint": "^7.3.1",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-import-resolver-typescript": "^2.0.0",
+    "eslint-plugin-import": "^2.22.0",
+    "husky": "^4.2.5",
+    "jest": "^26.1.0",
+    "lint-staged": "^10.2.11",
+    "ts-jest": "^26.1.1",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -e .git/COMMIT_EDITMSG",
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "yarn lint:fix",
+      "git add"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "include": ["./lib/index.ts", "./plugins/report.ts", "./lib/index-old.ts", "./inspect/proxy.ts", "./inspect/debug.ts"],
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "es2018",
+    "module": "commonjs",
+    // "strict": true,
+    "lib": ["es2017", "dom"],
+    "resolveJsonModule": true,
+    // "noImplicitAny": true
+    "sourceMap": false // for debug
+  },
+  "files": ["typings/type.d.ts"]
+}
