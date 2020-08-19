@@ -1,15 +1,16 @@
-const jsw = require("./dist/lib/index").default;
+const { jsw } = require("./dist/lib/index");
 const ReportPlugin = require("./dist/plugins/report").default;
 const http = require("http");
 const cookie = require("cookie");
+const { executionAsyncId, triggerAsyncId } = require('async_hooks')
 
 jsw({
   plugins: [
     new ReportPlugin({
       getUid(req) {
+        if (!req) return 'null'
         const cookies = cookie.parse(req.headers.cookie);
         return cookies.report || "";
-        // return 'null'
       },
       appKey: "cc9795781a140de490c7249314f8f4394c9d24b1",
     }),
@@ -38,28 +39,37 @@ const server = http.createServer((request, response) => {
         'Content-Type': 'application/json',
       },
     };
-
-    const req = http.request(options, (res) => {
-      console.log('create app')
-      res.on('close', () => {
-        response.writeHead(200);
-        response.write("id Ok");
-        response.end();
-      })
+    console.log('is create end', executionAsyncId(), triggerAsyncId())
+    setTimeout(() => {
+      console.log('fs setTime', executionAsyncId(), triggerAsyncId())
+      const req = http.request(options, (res) => {
+        console.log('create app', executionAsyncId(), triggerAsyncId())
+        res.on('close', () => {
+          setTimeout(() => {
+            console.log('is end', executionAsyncId(), triggerAsyncId())
+            response.writeHead(200);
+            response.write("id Ok");
+            response.end();
+          }, 3000)
   
-      res.on('data', () => {
-        console.warn('data')
-      })
-    });
-    req.write(dataEncoded)
-    req.end()
+        })
+    
+        res.on('data', () => {
+          console.warn('data')
+        })
+      });
+      req.write(dataEncoded)
+      req.end()
+    }, 3000)
   } else {
     console.log('test')
-    response.writeHead(404);
+    response.writeHead(200);
     response.end()
   }
 });
 
 
-server.listen(8820); // Activates this server, listening on port 8080.
+server.listen(8820, () => {
+  console.log('start with: http://localhost:8820/')
+}); // Activates this server, listening on port 8080.
 

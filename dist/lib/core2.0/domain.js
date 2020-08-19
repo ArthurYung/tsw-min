@@ -1,30 +1,46 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.currentDomain = exports.destroyDomain = exports.createDomain = void 0;
-const async_hooks = require("async_hooks");
-const config_1 = require("./config");
-const processDomain = new Map();
-exports.createDomain = () => {
-    const asyncId = async_hooks.executionAsyncId();
-    if (processDomain.size > config_1.default.jswConfig.limit) {
-        processDomain.set(asyncId, null);
+exports.clearDomain = exports.createDomain = exports.domainStack = exports.currentDomain = void 0;
+const async_hooks_1 = require("async_hooks");
+const runningDomains = new Map();
+const asyncTriggerMap = {};
+exports.currentDomain = () => {
+    const asyncId = async_hooks_1.triggerAsyncId();
+    const rootId = asyncTriggerMap[asyncId];
+    return runningDomains.has(rootId)
+        ? runningDomains.get(rootId)
+        : null;
+};
+exports.domainStack = () => {
+    const rootId = asyncTriggerMap[async_hooks_1.triggerAsyncId()];
+    if (runningDomains.has(rootId)) {
+        const current = async_hooks_1.executionAsyncId();
+        runningDomains.get(rootId)._hooks.push(current);
+        asyncTriggerMap[current] = rootId;
     }
-    else {
-        processDomain.set(asyncId, { asyncId });
+};
+exports.createDomain = (socket) => {
+    const asyncId = socket
+        ? socket._handle.getAsyncId()
+        : async_hooks_1.executionAsyncId();
+    if (!runningDomains.has(asyncId)) {
+        runningDomains.set(asyncId, {
+            asyncId,
+            _hooks: [asyncId]
+        });
+        asyncTriggerMap[asyncId] = asyncId;
     }
     return asyncId;
 };
-exports.destroyDomain = (asyncId) => {
-    return processDomain.delete(asyncId);
-};
-exports.currentDomain = () => {
-    let asyncId = async_hooks.executionAsyncId();
-    while (asyncId) {
-        if (processDomain.has(asyncId)) {
-            return processDomain.get(asyncId);
-        }
-        asyncId--;
+exports.clearDomain = (asyncId) => {
+    const currentAsyncId = asyncId || async_hooks_1.triggerAsyncId();
+    const domainAsyncId = asyncTriggerMap[currentAsyncId];
+    if (domainAsyncId) {
+        const domain = runningDomains.get(domainAsyncId);
+        process.nextTick(() => {
+            domain._hooks.forEach(id => (asyncTriggerMap[id] = undefined));
+            runningDomains.delete(domainAsyncId);
+        });
     }
-    return null;
 };
 //# sourceMappingURL=domain.js.map

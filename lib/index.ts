@@ -1,3 +1,4 @@
+import './core2.0/hacks/async'
 import * as winston from "winston";
 import * as Transport from "winston-transport";
 import logger from "./core2.0/logger";
@@ -19,7 +20,7 @@ interface JswConfig {
   limit?: number; // 最大并发上报数, 默认100
 }
 
-export default function (jswConfig: JswConfig = {}): void {
+export const jsw = (jswConfig: JswConfig = {}): void => {
   Object.assign(config.jswConfig, jswConfig);
   
   config.jswConfig.plugins.forEach((plugin) => {
@@ -34,8 +35,8 @@ export default function (jswConfig: JswConfig = {}): void {
     logger.setWinston(winstonLogger);
   }
 
+  consoleHack()
   requestHack();
-  consoleHack();
   dnsHack();
   httpCreateServerHack();
 }

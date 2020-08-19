@@ -40,11 +40,8 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
-benchmark/
+benchmark/metricsResult
 coverage/
-
-# TypeScript v1 declaration files
-typings/
 
 # TypeScript cache
 *.tsbuildinfo

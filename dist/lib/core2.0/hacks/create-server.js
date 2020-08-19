@@ -45,13 +45,7 @@ exports.httpCreateServerHack = () => {
                     socketConnect: start,
                     dnsTime: 0,
                 };
-                const domain = {
-                    domain: null,
-                    context: null
-                };
-                const clearDomain = () => {
-                    domain_1.destroyDomain(domain.domain);
-                };
+                const d = domain_1.createDomain(res.socket);
                 res.writeHead = ((fn) => (...args) => {
                     // start response, transfer res body
                     timestamps.onResponse = new Date();
@@ -104,7 +98,7 @@ exports.httpCreateServerHack = () => {
                         };
                         context.captureRequests.push(captureContext);
                     }
-                    clearDomain();
+                    domain_1.clearDomain(d);
                     events_1.eventBus.emit("RESPONSE_FINISH", {
                         req,
                         res,
@@ -113,19 +107,15 @@ exports.httpCreateServerHack = () => {
                 });
                 res.once("close", () => {
                     timestamps.responseClose = new Date();
-                    clearDomain();
+                    domain_1.clearDomain(d);
                 });
-                setImmediate(() => {
-                    // 创建一个domain
-                    domain.domain = domain_1.createDomain();
-                    // 初始化context
-                    domain.context = context_1.default();
-                    events_1.eventBus.emit("REQUEST_START", {
-                        req,
-                        context: domain.context,
-                    });
-                    requestListener(req, res);
+                // 初始化context
+                const context = context_1.default();
+                events_1.eventBus.emit("REQUEST_START", {
+                    req,
+                    context: context,
                 });
+                requestListener(req, res);
             };
             const creatorArgs = options
                 ? [options, requestListenerWrap]

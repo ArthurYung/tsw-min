@@ -95,14 +95,6 @@ export const hack = <T extends typeof http.request>(
   const { timestamps } = requestLog;
   timestamps.requestStart = new Date();
 
-  const clearDomain = (): void => {
-    // const parser = (request.socket as any).parser as any;
-    // if (parser && parser.domain) {
-    //   (parser.domain as domain.Domain).exit();
-    //   parser.domain = null;
-    // }
-  };
-
   const finishRequest = (): void => {
     // if (request._header)
     requestLog.SN = context.captureSN
@@ -154,10 +146,8 @@ export const hack = <T extends typeof http.request>(
   request.once("error", (error: Error) => {
     logger.error(`Request error. Stack: ${error.stack}`);
     finishRequest();
-    clearDomain();
   });
 
-  request.once("close", clearDomain);
   request.once("finish", () => {
     timestamps.requestFinish = new Date();
 
@@ -179,8 +169,6 @@ export const hack = <T extends typeof http.request>(
         timestamps.requestFinish.getTime() - timestamps.onSocket.getTime()
       } ms`
     );
-
-    clearDomain();
   });
 
   request.once("response", (response: http.IncomingMessage): void => {
