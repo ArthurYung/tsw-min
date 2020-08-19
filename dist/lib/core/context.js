@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Context = void 0;
+const domain_1 = require("./domain");
 class Context {
     constructor() {
         this.logs = [];
@@ -12,12 +13,12 @@ class Context {
 }
 exports.Context = Context;
 exports.default = () => {
-    if (!process.domain) {
+    const context = domain_1.currentDomain();
+    if (!context) {
         return null;
     }
-    if (!process.domain.currentContext) {
-        process.domain.currentContext = new Context();
+    if (!context.currentContext) {
+        context.currentContext = new Context();
     }
-    return process.domain.currentContext;
+    return context.currentContext;
 };
-//# sourceMappingURL=context.js.map

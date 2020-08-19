@@ -1,11 +1,12 @@
 import * as moment from "moment";
 import * as chalk from "chalk";
 import { Logger as WinstonLogger } from "winston";
-import { address } from "ip";
+import * as Stream from 'stream'
 import getStackInfo from "./utils/callInfo";
 import currentContext from "./context";
 import config from "./config";
 import isInspect from "./utils/isInspect";
+// import { currentDomain } from './domain'
 
 enum LOG_LEVEL {
   "info" = 10,
@@ -37,7 +38,6 @@ export class Logger {
   }
 
   public error(message: string) {
-    console.log('is error')
     this.writeLog(message, "error");
   }
 
@@ -50,22 +50,36 @@ export class Logger {
   }
 
   public writeLog(str: string, type = "debug") {
-    const writeStr = this.formatStr(str, type);
+    const writeStr = this.formatStr({ str, type, color: isInspect() });
     const context = currentContext();
     if (context) {
       context.logs.push(writeStr);
     }
+
     if (this.winstonLogger) {
       this.winstonLogger[type](writeStr);
     }
+
+    if (isInspect()) {
+      Logger.fillInspect(writeStr, type)
+    } 
+    
+    Logger.fillStdout(writeStr)
   }
 
-  public formatStr(str: string, type = "debug") {
-    const logLevel = LOG_LEVEL[type];
-    const showLineNumber = logLevel >= config.holoConfig.lineLevel || isInspect();
+  public formatStr(info: {
+    str: string,
+    type: string,
+    color?: boolean
+  }) {
     const timestamp = `[${moment(new Date()).format("YYYY-MM-DD HH:mm:ss.SSS")}]`;
-    const logType = `[${type.toLocaleUpperCase()}]`;
+    const logType = `[${info.type.toLocaleUpperCase()}]`;
 
+    const showLineNumber = ((logType) => {
+      if (isInspect()) return true
+      return LOG_LEVEL[logType] >= config.jswConfig.lineLevel
+    })(info.type)
+  
     // Formatter stackInfo to string
     const stackInfo = ((): string => {
       if (!showLineNumber) return "";
@@ -74,12 +88,31 @@ export class Logger {
     })();
 
     // Formatter docker container name and server address
-    const localInfo = `[${address()} ${process.env.HOSTNAME || "-"} ${process.pid}]`;
-    const typeColor = LOG_COLOR[type];
+    const localInfo = `[${process.env.HOSTNAME || process.pid}]`;
 
-    return `${chalk.whiteBright(timestamp)}${chalk[typeColor](logType)}${chalk.whiteBright(
-      localInfo
-    )}${chalk.whiteBright(stackInfo)} ${str}`;
+    if (info.color) {
+      const typeColor = LOG_COLOR[info.type];
+      return `${chalk.whiteBright(timestamp)}${chalk[typeColor](logType)}${chalk.whiteBright(
+        localInfo
+      )}${chalk.whiteBright(stackInfo)} ${info.str}`;
+    }
+
+    return `${timestamp}${logType}${localInfo}${stackInfo} ${info.str}`
+  }
+
+  static fillInspect(str: string, type: string) {
+    if ((console as any)._stdout === process.stdout) {
+      const empty = new Stream.Writable();
+      empty.write = (): boolean => false;
+      empty.end = (): void => {};
+      (console as any)._stdout = empty;
+      (console as any)._stderr = empty;
+    }
+    (console["__" + type] || console[type])(str);
+  }
+
+  static fillStdout(str) {
+    process.stdout.write(str + '\n')
   }
 }
 

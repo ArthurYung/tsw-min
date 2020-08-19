@@ -1,7 +1,8 @@
 export default {
-  holoConfig: {
+  jswConfig: {
     lineLevel: 30,
     transports: [],
     plugins: [],
+    limit: 100
   },
 };

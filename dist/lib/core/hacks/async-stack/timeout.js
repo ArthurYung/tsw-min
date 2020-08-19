@@ -6,24 +6,23 @@ globalObjects.__originSetTimeout = globalObjects.setTimeout;
 globalObjects.__originSetInterval = globalObjects.setInterval;
 globalObjects.__originSetImmediate = globalObjects.setImmediate;
 globalObjects.setTimeout = function (callback, ms, ...args) {
-    const callbackFn = (...args) => {
-        domain_1.domainStack(' === timeout cb');
-        callback(...args);
-    };
-    return globalObjects.__originSetTimeout(callbackFn, ms, args);
-};
-globalObjects.setInterval = function (callback, ms, ...args) {
-    const callbackFn = (...args) => {
-        domain_1.domainStack(' === interval cb');
-        callback(...args);
-    };
-    return globalObjects.__originSetInterval(callbackFn, ms, args);
-};
-globalObjects.setImmediate = function (callback, ...args) {
-    const callbackFn = (...args) => {
+    const callbackWrap = (...args) => {
         domain_1.domainStack();
         callback(...args);
     };
-    return globalObjects.__originSetImmediate(callbackFn, args);
+    return globalObjects.__originSetTimeout(callbackWrap, ms, args);
 };
-//# sourceMappingURL=timeout.js.map
+globalObjects.setInterval = function (callback, ms, ...args) {
+    const callbackWrap = (...args) => {
+        domain_1.domainStack();
+        callback(...args);
+    };
+    return globalObjects.__originSetInterval(callbackWrap, ms, args);
+};
+globalObjects.setImmediate = function (callback, ...args) {
+    const callbackWrap = (...args) => {
+        domain_1.domainStack();
+        callback(...args);
+    };
+    return globalObjects.__originSetImmediate(callbackWrap, args);
+};

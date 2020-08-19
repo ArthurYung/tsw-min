@@ -4,10 +4,9 @@ const domain_1 = require("../../domain");
 process.__originNextTick = process.nextTick;
 process.nextTick = (callback, ...args) => {
     const callbackWrap = (...args) => {
-        domain_1.updateAsync('by next Tick: ');
+        domain_1.domainStack();
         callback.apply(callback, args);
     };
     return process.__originNextTick(callbackWrap, ...args);
 };
 process.nextTick;
-//# sourceMappingURL=tick.js.map

@@ -1,13 +1,13 @@
-import './core2.0/hacks/async'
+import './core/hacks/async'
 import * as winston from "winston";
 import * as Transport from "winston-transport";
-import logger from "./core2.0/logger";
-import config from "./core2.0/config";
-import { eventBus, EventBus } from "./core2.0/events";
-import { httpCreateServerHack } from "./core2.0/hacks/create-server";
-import { dnsHack } from "./core2.0/hacks/dns";
-import { consoleHack } from "./core2.0/hacks/console";
-import { requestHack } from "./core2.0/hacks/request";
+import logger from "./core/logger";
+import config from "./core/config";
+import { eventBus, EventBus } from "./core/events";
+import { httpCreateServerHack } from "./core/hacks/create-server";
+import { dnsHack } from "./core/hacks/dns";
+import { consoleHack } from "./core/hacks/console";
+import { requestHack } from "./core/hacks/request";
 
 interface PluginInfo {
   init: (events: EventBus) => void;

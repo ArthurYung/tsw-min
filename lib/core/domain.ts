@@ -1,37 +1,58 @@
-import * as async_hooks from 'async_hooks'
+import { executionAsyncId, triggerAsyncId } from 'async_hooks'
 
-const processDomain = new Map<number, any>()
-const hooksTriggerMap = new Map<number, number>()
+export type StackDomain = {
+  asyncId: number
+  _hooks: number[]
+  currentContext?: any
+}
 
-export class CreateDomain {
-  private rootAsyncId: number
-  private asyncHook: async_hooks.AsyncHook
-  public currentContext: any
-  constructor() {
-    this.rootAsyncId = async_hooks.executionAsyncId()
-    this.initAsyncHook()
-  }
-  public initAsyncHook() {
-    const self = this
-    this.asyncHook = async_hooks.createHook({
-      init(asyncId, _, triggerAsyncId) {
-        self.rootAsyncId = hooksTriggerMap.get(triggerAsyncId) || asyncId
-        processDomain.set(self.rootAsyncId, self)
-        hooksTriggerMap.set(asyncId, self.rootAsyncId)
-      },
-      destroy(asyncId) {
-        hooksTriggerMap.delete(asyncId)
-      }
-    }).enable()
-  }
-  public destroy() {
-    this.asyncHook.disable()
-    processDomain.delete(this.rootAsyncId)
+const runningDomains = new Map<number, StackDomain>()
+const asyncTriggerMap = {}
+
+export const currentDomain = (): StackDomain => {
+  const asyncId = triggerAsyncId()
+  const rootId = asyncTriggerMap[asyncId]
+
+  return runningDomains.has(rootId) 
+    ? runningDomains.get(rootId) 
+    : null
+}
+
+export const domainStack = (): void => {
+  const rootId = asyncTriggerMap[triggerAsyncId()]
+  if (runningDomains.has(rootId)) {
+    const current = executionAsyncId()
+    runningDomains.get(rootId)._hooks.push(current)
+    asyncTriggerMap[current] = rootId
   }
 }
 
-export const getDomain = (): CreateDomain | null => {
-  const asyncId = async_hooks.executionAsyncId()
-  const rootId = hooksTriggerMap.get(asyncId)
-  return processDomain.get(rootId)
+export const createDomain = (socket?: any): number => {
+  const asyncId = socket 
+    ? socket._handle.getAsyncId() 
+    : executionAsyncId()
+
+  if (!runningDomains.has(asyncId)) {
+    runningDomains.set(asyncId, { 
+      asyncId, 
+      _hooks: [ asyncId ] 
+    })
+  
+    asyncTriggerMap[asyncId] = asyncId
+  }
+
+  return asyncId
+}
+
+export const clearDomain = (asyncId ?: number): void => {
+  const currentAsyncId = asyncId || triggerAsyncId()
+  const domainAsyncId = asyncTriggerMap[currentAsyncId]
+  
+  if (domainAsyncId) {
+    const domain = runningDomains.get(domainAsyncId)
+    process.nextTick(() => {
+      domain._hooks.forEach(id => (asyncTriggerMap[id] = undefined))
+      runningDomains.delete(domainAsyncId)
+    })
+  }
 }

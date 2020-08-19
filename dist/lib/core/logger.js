@@ -3,11 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
 const moment = require("moment");
 const chalk = require("chalk");
-const ip_1 = require("ip");
+const Stream = require("stream");
 const callInfo_1 = require("./utils/callInfo");
 const context_1 = require("./context");
 const config_1 = require("./config");
 const isInspect_1 = require("./utils/isInspect");
+// import { currentDomain } from './domain'
 var LOG_LEVEL;
 (function (LOG_LEVEL) {
     LOG_LEVEL[LOG_LEVEL["info"] = 10] = "info";
@@ -33,7 +34,6 @@ class Logger {
         this.writeLog(message, "warn");
     }
     error(message) {
-        console.log('is error');
         this.writeLog(message, "error");
     }
     originConsole(str, type) {
@@ -43,7 +43,7 @@ class Logger {
         this.winstonLogger = context;
     }
     writeLog(str, type = "debug") {
-        const writeStr = this.formatStr(str, type);
+        const writeStr = this.formatStr({ str, type, color: isInspect_1.default() });
         const context = context_1.default();
         if (context) {
             context.logs.push(writeStr);
@@ -51,12 +51,19 @@ class Logger {
         if (this.winstonLogger) {
             this.winstonLogger[type](writeStr);
         }
+        if (isInspect_1.default()) {
+            Logger.fillInspect(writeStr, type);
+        }
+        Logger.fillStdout(writeStr);
     }
-    formatStr(str, type = "debug") {
-        const logLevel = LOG_LEVEL[type];
-        const showLineNumber = logLevel >= config_1.default.holoConfig.lineLevel || isInspect_1.default();
+    formatStr(info) {
         const timestamp = `[${moment(new Date()).format("YYYY-MM-DD HH:mm:ss.SSS")}]`;
-        const logType = `[${type.toLocaleUpperCase()}]`;
+        const logType = `[${info.type.toLocaleUpperCase()}]`;
+        const showLineNumber = ((logType) => {
+            if (isInspect_1.default())
+                return true;
+            return LOG_LEVEL[logType] >= config_1.default.jswConfig.lineLevel;
+        })(info.type);
         // Formatter stackInfo to string
         const stackInfo = (() => {
             if (!showLineNumber)
@@ -65,9 +72,25 @@ class Logger {
             return `[/${filename}:${line}:${column}]`;
         })();
         // Formatter docker container name and server address
-        const localInfo = `[${ip_1.address()} ${process.env.HOSTNAME || "-"} ${process.pid}]`;
-        const typeColor = LOG_COLOR[type];
-        return `${chalk.whiteBright(timestamp)}${chalk[typeColor](logType)}${chalk.whiteBright(localInfo)}${chalk.whiteBright(stackInfo)} ${str}`;
+        const localInfo = `[${process.env.HOSTNAME || process.pid}]`;
+        if (info.color) {
+            const typeColor = LOG_COLOR[info.type];
+            return `${chalk.whiteBright(timestamp)}${chalk[typeColor](logType)}${chalk.whiteBright(localInfo)}${chalk.whiteBright(stackInfo)} ${info.str}`;
+        }
+        return `${timestamp}${logType}${localInfo}${stackInfo} ${info.str}`;
+    }
+    static fillInspect(str, type) {
+        if (console._stdout === process.stdout) {
+            const empty = new Stream.Writable();
+            empty.write = () => false;
+            empty.end = () => { };
+            console._stdout = empty;
+            console._stderr = empty;
+        }
+        (console["__" + type] || console[type])(str);
+    }
+    static fillStdout(str) {
+        process.stdout.write(str + '\n');
     }
 }
 exports.Logger = Logger;
@@ -76,4 +99,3 @@ if (!logger) {
     logger = new Logger();
 }
 exports.default = logger;
-//# sourceMappingURL=logger.js.map

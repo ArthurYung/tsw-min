@@ -1,5 +1,5 @@
 {
-  "include": ["./lib/index.ts", "./plugins/report.ts", "./lib/index-old.ts", "./inspect/proxy.ts", "./inspect/debug.ts"],
+  "include": ["./lib/index.ts", "./plugins/report.ts"],
   "compilerOptions": {
     "outDir": "./dist",
     "target": "es2018",

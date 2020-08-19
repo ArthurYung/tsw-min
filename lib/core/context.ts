@@ -1,3 +1,5 @@
+import { currentDomain } from './domain'
+
 export type RequestTimestamp = {
   /*
    * Request begin.
@@ -93,14 +95,14 @@ export class Context {
 }
 
 export default (): Context | null => {
-
-  if (!process.domain) {
+  const context = currentDomain()
+  if (!context) {
     return null;
   }
 
-  if (!process.domain.currentContext) {
-    process.domain.currentContext = new Context();
+  if (!context.currentContext) {
+    context.currentContext = new Context();
   }
 
-  return process.domain.currentContext;
+  return context.currentContext
 };

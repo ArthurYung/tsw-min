@@ -5,4 +5,3 @@ const isInspect = () => {
     return Boolean(nodeOptions && (nodeOptions.includes("--inspect") || nodeOptions.includes("--inspect-brk")));
 };
 exports.default = isInspect;
-//# sourceMappingURL=isInspect.js.map

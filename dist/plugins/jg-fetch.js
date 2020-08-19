@@ -34,4 +34,3 @@ function postReport(context) {
     });
 }
 exports.postReport = postReport;
-//# sourceMappingURL=jg-fetch.js.map

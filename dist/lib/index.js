@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.jsw = void 0;
-require("./core2.0/hacks/async");
+require("./core/hacks/async");
 const winston = require("winston");
-const logger_1 = require("./core2.0/logger");
-const config_1 = require("./core2.0/config");
-const events_1 = require("./core2.0/events");
-const create_server_1 = require("./core2.0/hacks/create-server");
-const dns_1 = require("./core2.0/hacks/dns");
-const console_1 = require("./core2.0/hacks/console");
-const request_1 = require("./core2.0/hacks/request");
+const logger_1 = require("./core/logger");
+const config_1 = require("./core/config");
+const events_1 = require("./core/events");
+const create_server_1 = require("./core/hacks/create-server");
+const dns_1 = require("./core/hacks/dns");
+const console_1 = require("./core/hacks/console");
+const request_1 = require("./core/hacks/request");
 exports.jsw = (jswConfig = {}) => {
     Object.assign(config_1.default.jswConfig, jswConfig);
     config_1.default.jswConfig.plugins.forEach((plugin) => {
@@ -27,4 +27,3 @@ exports.jsw = (jswConfig = {}) => {
     dns_1.dnsHack();
     create_server_1.httpCreateServerHack();
 };
-//# sourceMappingURL=index.js.map

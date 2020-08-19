@@ -9,12 +9,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.httpCreateServerRestore = exports.httpCreateServerHack = void 0;
 const http = require("http");
-const domain = require("domain");
 const context_1 = require("../context");
 const events_1 = require("../events");
 const ip_1 = require("ip");
 const incoming_1 = require("../utils/incoming");
 const outgoing_1 = require("../utils/outgoing");
+const domain_1 = require("../domain");
 const server_inspect_proxy_1 = require("server-inspect-proxy");
 let httpCreateServerHacked = false;
 let originHttpCreateServer = null;
@@ -45,22 +45,7 @@ exports.httpCreateServerHack = () => {
                     socketConnect: start,
                     dnsTime: 0,
                 };
-                // Creating a domain and wrapping the execution.
-                const d = domain.create();
-                d.add(req);
-                d.add(res);
-                const clearDomain = () => {
-                    d.remove(req);
-                    d.remove(res);
-                    const parser = req.socket.parser;
-                    if (parser && parser.domain) {
-                        parser.domain.exit();
-                        parser.domain = null;
-                    }
-                    while (process.domain) {
-                        process.domain.exit();
-                    }
-                };
+                const d = domain_1.createDomain(res.socket);
                 res.writeHead = ((fn) => (...args) => {
                     // start response, transfer res body
                     timestamps.onResponse = new Date();
@@ -68,8 +53,9 @@ exports.httpCreateServerHack = () => {
                     return fn.apply(res, args);
                 })(res.writeHead);
                 res.once("finish", () => {
-                    const context = process.domain.currentContext;
-                    if (context.isReport) {
+                    var _a;
+                    const context = (_a = domain_1.currentDomain()) === null || _a === void 0 ? void 0 : _a.currentContext;
+                    if (context && context.isReport) {
                         timestamps.requestFinish = new Date();
                         const requestInfo = incoming_1.captureIncoming(req);
                         const captureContext = {
@@ -112,7 +98,7 @@ exports.httpCreateServerHack = () => {
                         };
                         context.captureRequests.push(captureContext);
                     }
-                    clearDomain();
+                    domain_1.clearDomain(d);
                     events_1.eventBus.emit("RESPONSE_FINISH", {
                         req,
                         res,
@@ -121,28 +107,25 @@ exports.httpCreateServerHack = () => {
                 });
                 res.once("close", () => {
                     timestamps.responseClose = new Date();
-                    clearDomain();
+                    domain_1.clearDomain(d);
                 });
-                d.run(() => {
-                    // 初始化一下 Context
-                    context_1.default();
-                    const context = process.domain.currentContext;
-                    events_1.eventBus.emit("REQUEST_START", {
-                        req,
-                        context,
-                    });
-                    requestListener(req, res);
+                // 初始化context
+                const context = context_1.default();
+                events_1.eventBus.emit("REQUEST_START", {
+                    req,
+                    context: context,
                 });
+                requestListener(req, res);
             };
-            const creatorApplyArgs = options ? [options, requestListenerWrap] : [requestListenerWrap];
-            const creatorServer = createServer.apply(this, creatorApplyArgs);
-            console.log(process.env.NODE_OPTIONS);
+            const creatorArgs = options
+                ? [options, requestListenerWrap]
+                : [requestListenerWrap];
+            const httpServer = createServer.apply(this, creatorArgs);
+            // inspect下自动开启远程调试代理
             if (process.env.NODE_OPTIONS === '--inspect') {
-                server_inspect_proxy_1.debug(creatorServer);
-                // return createServer.apply(this, [options, requestListenerWrap]);
+                server_inspect_proxy_1.debug(httpServer);
             }
-            return creatorServer;
-            // return createServer.apply(this, [requestListenerWrap]);
+            return httpServer;
         })(http.createServer);
     }
 };
@@ -155,4 +138,3 @@ exports.httpCreateServerRestore = () => {
         http.createServer = originHttpCreateServer;
     }
 };
-//# sourceMappingURL=create-server.js.map

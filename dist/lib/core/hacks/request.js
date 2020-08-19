@@ -79,13 +79,6 @@ exports.hack = (originRequest, protocol) => (...args) => {
     };
     const { timestamps } = requestLog;
     timestamps.requestStart = new Date();
-    const clearDomain = () => {
-        const parser = request.socket.parser;
-        if (parser && parser.domain) {
-            parser.domain.exit();
-            parser.domain = null;
-        }
-    };
     const finishRequest = () => {
         // if (request._header)
         requestLog.SN = context.captureSN;
@@ -117,9 +110,7 @@ exports.hack = (originRequest, protocol) => (...args) => {
     request.once("error", (error) => {
         logger_1.default.error(`Request error. Stack: ${error.stack}`);
         finishRequest();
-        clearDomain();
     });
-    request.once("close", clearDomain);
     request.once("finish", () => {
         timestamps.requestFinish = new Date();
         let requestBody;
@@ -134,7 +125,6 @@ exports.hack = (originRequest, protocol) => (...args) => {
         requestLog.requestHeader = request._header;
         requestLog.requestBody = requestBody;
         logger_1.default.debug(`Request send finish. Body size ${length}. Cost: ${timestamps.requestFinish.getTime() - timestamps.onSocket.getTime()} ms`);
-        clearDomain();
     });
     request.once("response", (response) => {
         timestamps.onResponse = new Date();
@@ -207,4 +197,3 @@ exports.requestRestore = () => {
         hacked = false;
     }
 };
-//# sourceMappingURL=request.js.map

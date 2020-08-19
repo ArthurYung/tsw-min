@@ -40,4 +40,3 @@ exports.captureOutgoing = (outgoing) => {
         return fn.apply(outgoing, args);
     })(outgoing._finish);
 };
-//# sourceMappingURL=outgoing.js.map
