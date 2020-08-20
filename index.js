@@ -21,53 +21,9 @@ jsw({
 });
 
 const server = http.createServer((request, response) => {
-   if(request.url === '/post/json') {
-    const dataEncoded = JSON.stringify({
-      appkey: 'test-appkey',
-      password: 'testPassowrd',
-      fn: 4,
-      test: {
-        autofix: 1,
-        np: [1,2,3]
-      }
-    })
-
-    const options = {
-      hostname: 'yapi.gltest.jpushoa.com',
-      path: '/mock/15/ssr/api/push/data?a=1',
-      method: 'POST',
-      headers: {
-        'Content-Length': Buffer.byteLength(dataEncoded),
-        'Content-Type': 'application/json',
-      },
-    };
-    console.log('is create end', executionAsyncId(), triggerAsyncId())
-    setTimeout(() => {
-      console.log('fs setTime', executionAsyncId(), triggerAsyncId())
-      const req = http.request(options, (res) => {
-        console.log('create app', executionAsyncId(), triggerAsyncId())
-        res.on('close', () => {
-          setTimeout(() => {
-            console.log('is end', executionAsyncId(), triggerAsyncId())
-            response.writeHead(200);
-            response.write("id Ok");
-            response.end();
-          }, 3000)
-  
-        })
-    
-        res.on('data', () => {
-          console.warn('data')
-        })
-      });
-      req.write(dataEncoded)
-      req.end()
-    }, 3000)
-  } else {
     console.log('test')
     response.writeHead(200);
     response.end()
-  }
 });
 
 
