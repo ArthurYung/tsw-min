@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 const http = require("http");
-const ReportPlugin = require("../dist/plugins/report").default;
+// const ReportPlugin = require("../dist/plugins/report").default;
 const { jsw } = require("../dist/lib/index");
 jsw({
   lineLevel: 30,
