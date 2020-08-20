@@ -1,7 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const isInspect = () => {
-    const nodeOptions = process.env.NODE_OPTIONS;
-    return Boolean(nodeOptions && (nodeOptions.includes("--inspect") || nodeOptions.includes("--inspect-brk")));
-};
-exports.default = isInspect;
+exports.isInspect = void 0;
+function checkNodeOptions() {
+    return process.env.NODE_OPTIONS
+        && process.env.NODE_OPTIONS.startsWith('--inspect');
+}
+function checkExecArgs() {
+    const args = process.execArgv;
+    for (let i = 0; i < args.length; i++) {
+        if (args[i].startsWith('--inspect'))
+            return true;
+    }
+    return false;
+}
+exports.isInspect = (function () {
+    return checkNodeOptions() || checkExecArgs();
+})();
+//# sourceMappingURL=isInspect.js.map

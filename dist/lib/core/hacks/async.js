@@ -4,3 +4,4 @@ require("./async-stack/promise");
 require("./async-stack/timeout");
 require("./async-stack/events");
 require("./async-stack/tick");
+//# sourceMappingURL=async.js.map

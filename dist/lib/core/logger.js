@@ -8,7 +8,6 @@ const callInfo_1 = require("./utils/callInfo");
 const context_1 = require("./context");
 const config_1 = require("./config");
 const isInspect_1 = require("./utils/isInspect");
-// import { currentDomain } from './domain'
 var LOG_LEVEL;
 (function (LOG_LEVEL) {
     LOG_LEVEL[LOG_LEVEL["info"] = 10] = "info";
@@ -43,7 +42,7 @@ class Logger {
         this.winstonLogger = context;
     }
     writeLog(str, type = "debug") {
-        const writeStr = this.formatStr({ str, type, color: isInspect_1.default() });
+        const writeStr = this.formatStr({ str, type, color: isInspect_1.isInspect });
         const context = context_1.default();
         if (context) {
             context.logs.push(writeStr);
@@ -51,7 +50,7 @@ class Logger {
         if (this.winstonLogger) {
             this.winstonLogger[type](writeStr);
         }
-        if (isInspect_1.default()) {
+        if (isInspect_1.isInspect) {
             Logger.fillInspect(writeStr, type);
         }
         Logger.fillStdout(writeStr);
@@ -60,7 +59,7 @@ class Logger {
         const timestamp = `[${moment(new Date()).format("YYYY-MM-DD HH:mm:ss.SSS")}]`;
         const logType = `[${info.type.toLocaleUpperCase()}]`;
         const showLineNumber = ((logType) => {
-            if (isInspect_1.default())
+            if (isInspect_1.isInspect)
                 return true;
             return LOG_LEVEL[logType] >= config_1.default.jswConfig.lineLevel;
         })(info.type);
@@ -72,7 +71,12 @@ class Logger {
             return `[/${filename}:${line}:${column}]`;
         })();
         // Formatter docker container name and server address
-        const localInfo = `[${process.env.HOSTNAME || process.pid}]`;
+        const localInfo = (() => {
+            if (process.env.HOSTNAME) {
+                return `[${process.env.HOSTNAME}][${process.pid}]`;
+            }
+            return `[${process.pid}]`;
+        })();
         if (info.color) {
             const typeColor = LOG_COLOR[info.type];
             return `${chalk.whiteBright(timestamp)}${chalk[typeColor](logType)}${chalk.whiteBright(localInfo)}${chalk.whiteBright(stackInfo)} ${info.str}`;
@@ -99,3 +103,4 @@ if (!logger) {
     logger = new Logger();
 }
 exports.default = logger;
+//# sourceMappingURL=logger.js.map

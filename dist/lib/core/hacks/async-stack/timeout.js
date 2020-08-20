@@ -26,3 +26,4 @@ globalObjects.setImmediate = function (callback, ...args) {
     };
     return globalObjects.__originSetImmediate(callbackWrap, args);
 };
+//# sourceMappingURL=timeout.js.map

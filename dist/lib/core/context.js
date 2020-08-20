@@ -22,3 +22,4 @@ exports.default = () => {
     }
     return context.currentContext;
 };
+//# sourceMappingURL=context.js.map

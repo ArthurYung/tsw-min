@@ -10,3 +10,4 @@ process.nextTick = (callback, ...args) => {
     return process.__originNextTick(callbackWrap, ...args);
 };
 process.nextTick;
+//# sourceMappingURL=tick.js.map

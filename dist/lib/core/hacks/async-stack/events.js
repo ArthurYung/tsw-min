@@ -7,3 +7,4 @@ events_1.EventEmitter.prototype.emit = function (event, ...args) {
     domain_1.domainStack();
     return this.__originEmit(event, ...args);
 };
+//# sourceMappingURL=events.js.map

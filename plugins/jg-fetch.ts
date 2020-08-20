@@ -8,8 +8,11 @@ const proxyConfig = {
 
 type ProxyConfig = typeof proxyConfig;
 
-type FetchConfig = {
+type PostContext = {
   appKey: string;
+  logs: string[];
+  requests: any[];
+  env: string;
 };
 
 export function setProxyConfig(config: ProxyConfig) {
@@ -25,20 +28,15 @@ export async function fetchProxyEnv(appKey: string) {
         responseType: "json",
       }
     );
-    console.log(body);
+
+    console.info('proxy white list: '+ body)
+
     return Array.isArray(body) ? body : [];
   } catch (e) {
     console.error(e);
     return [];
   }
 }
-
-type PostContext = {
-  appKey: string;
-  logs: string[];
-  requests: any[];
-  env: string;
-};
 
 export function postReport(context: PostContext) {
   got.post(`${proxyConfig.domain}:${proxyConfig.prot}/api/v1/logs`, {

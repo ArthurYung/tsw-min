@@ -32,3 +32,4 @@ Promise.prototype.finally = function (onfinally) {
     };
     return this.__originFinally(finallyWrap);
 };
+//# sourceMappingURL=promise.js.map

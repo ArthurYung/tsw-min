@@ -5,8 +5,7 @@ import * as Stream from 'stream'
 import getStackInfo from "./utils/callInfo";
 import currentContext from "./context";
 import config from "./config";
-import isInspect from "./utils/isInspect";
-// import { currentDomain } from './domain'
+import { isInspect } from "./utils/isInspect";
 
 enum LOG_LEVEL {
   "info" = 10,
@@ -50,7 +49,7 @@ export class Logger {
   }
 
   public writeLog(str: string, type = "debug") {
-    const writeStr = this.formatStr({ str, type, color: isInspect() });
+    const writeStr = this.formatStr({ str, type, color: isInspect });
     const context = currentContext();
     if (context) {
       context.logs.push(writeStr);
@@ -60,7 +59,7 @@ export class Logger {
       this.winstonLogger[type](writeStr);
     }
 
-    if (isInspect()) {
+    if (isInspect) {
       Logger.fillInspect(writeStr, type)
     } 
     
@@ -76,7 +75,7 @@ export class Logger {
     const logType = `[${info.type.toLocaleUpperCase()}]`;
 
     const showLineNumber = ((logType) => {
-      if (isInspect()) return true
+      if (isInspect) return true
       return LOG_LEVEL[logType] >= config.jswConfig.lineLevel
     })(info.type)
   
@@ -88,7 +87,12 @@ export class Logger {
     })();
 
     // Formatter docker container name and server address
-    const localInfo = `[${process.env.HOSTNAME || process.pid}]`;
+    const localInfo = (() => {
+      if (process.env.HOSTNAME) {
+        return `[${process.env.HOSTNAME}][${process.pid}]`
+      }
+      return `[${process.pid}]`
+    })();
 
     if (info.color) {
       const typeColor = LOG_COLOR[info.type];

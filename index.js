@@ -8,11 +8,13 @@ jsw({
   plugins: [
     new ReportPlugin({
       getUid(req) {
-        if (!req) return 'null'
-        const cookies = cookie.parse(req.headers.cookie);
-        return cookies.report || "";
+        if (req.headers && typeof req.headers.cookie === 'string') {
+          const cookies = cookie.parse(req.headers.cookie);
+          return cookies.report || "";
+        }
+        return null
       },
-      appKey: "cc9795781a140de490c7249314f8f4394c9d24b1",
+      appKey: "37fa3dfffb4c6fc1db744d43b30326dbf7a95e02",
     }),
   ],
   lineLevel: 30,

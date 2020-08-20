@@ -1,8 +1,17 @@
-const isInspect = (): boolean => {
-  const nodeOptions = process.env.NODE_OPTIONS;
-  return Boolean(
-    nodeOptions && (nodeOptions.includes("--inspect") || nodeOptions.includes("--inspect-brk"))
-  );
-};
+function checkNodeOptions(): boolean {
+  return process.env.NODE_OPTIONS 
+    && process.env.NODE_OPTIONS.startsWith('--inspect')
+}
 
-export default isInspect;
+function checkExecArgs(): boolean {
+  const args = process.execArgv;
+  for(let i = 0; i < args.length; i++) {
+    if (args[i].startsWith('--inspect')) return true
+  }
+  return false
+}
+
+export const isInspect = (function():boolean {
+  return checkNodeOptions() || checkExecArgs()
+})()
+

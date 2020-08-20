@@ -17,7 +17,7 @@ async function fetchProxyEnv(appKey) {
             host: proxyConfig.host,
             responseType: "json",
         });
-        console.log(body);
+        console.info('proxy white list: ' + body);
         return Array.isArray(body) ? body : [];
     }
     catch (e) {
@@ -34,3 +34,4 @@ function postReport(context) {
     });
 }
 exports.postReport = postReport;
+//# sourceMappingURL=jg-fetch.js.map
