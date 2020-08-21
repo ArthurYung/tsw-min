@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.jsw = void 0;
-require("./core/hacks/async");
+require("./core/hacks/async-hook");
 const winston = require("winston");
 const logger_1 = require("./core/logger");
 const config_1 = require("./core/config");
@@ -27,4 +27,3 @@ exports.jsw = (jswConfig = {}) => {
     dns_1.dnsHack();
     create_server_1.httpCreateServerHack();
 };
-//# sourceMappingURL=index.js.map

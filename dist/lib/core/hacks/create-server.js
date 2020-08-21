@@ -15,7 +15,6 @@ const ip_1 = require("ip");
 const incoming_1 = require("../utils/incoming");
 const outgoing_1 = require("../utils/outgoing");
 const domain_1 = require("../domain");
-const server_inspect_proxy_1 = require("server-inspect-proxy");
 let httpCreateServerHacked = false;
 let originHttpCreateServer = null;
 exports.httpCreateServerHack = () => {
@@ -45,7 +44,7 @@ exports.httpCreateServerHack = () => {
                     socketConnect: start,
                     dnsTime: 0,
                 };
-                const d = domain_1.createDomain(res.socket);
+                const d = domain_1.createDomain();
                 res.writeHead = ((fn) => (...args) => {
                     // start response, transfer res body
                     timestamps.onResponse = new Date();
@@ -113,7 +112,7 @@ exports.httpCreateServerHack = () => {
                 const context = context_1.default();
                 events_1.eventBus.emit("REQUEST_START", {
                     req,
-                    context: context,
+                    context,
                 });
                 requestListener(req, res);
             };
@@ -121,10 +120,6 @@ exports.httpCreateServerHack = () => {
                 ? [options, requestListenerWrap]
                 : [requestListenerWrap];
             const httpServer = createServer.apply(this, creatorArgs);
-            // inspect下自动开启远程调试代理
-            if (process.env.NODE_OPTIONS === '--inspect') {
-                server_inspect_proxy_1.debug(httpServer);
-            }
             return httpServer;
         })(http.createServer);
     }
@@ -138,4 +133,3 @@ exports.httpCreateServerRestore = () => {
         http.createServer = originHttpCreateServer;
     }
 };
-//# sourceMappingURL=create-server.js.map

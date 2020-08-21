@@ -14,8 +14,6 @@ import { AddressInfo } from "net";
 import { captureIncoming } from "../utils/incoming";
 import { captureOutgoing } from "../utils/outgoing";
 import { createDomain, currentDomain, clearDomain } from '../domain'
-import { debug } from 'server-inspect-proxy'
-
 
 let httpCreateServerHacked = false;
 let originHttpCreateServer = null;
@@ -53,7 +51,7 @@ export const httpCreateServerHack = (): void => {
           dnsTime: 0,
         } as RequestTimestamp;
         
-        const d = createDomain(res.socket)
+        const d = createDomain()
 
         res.writeHead = ((fn): typeof res.writeHead => (
           ...args: unknown[]
@@ -68,6 +66,7 @@ export const httpCreateServerHack = (): void => {
 
         res.once("finish", () => {
           const context = currentDomain()?.currentContext;
+
           if (context && context.isReport) {
             timestamps.requestFinish = new Date();
             const requestInfo = captureIncoming(req);
@@ -143,7 +142,7 @@ export const httpCreateServerHack = (): void => {
 
         eventBus.emit("REQUEST_START", {
           req,
-          context: context,
+          context,
         });
         
         requestListener(req, res)
@@ -154,11 +153,6 @@ export const httpCreateServerHack = (): void => {
         : [requestListenerWrap]
 
       const httpServer = createServer.apply(this, creatorArgs)
-
-      // inspect下自动开启远程调试代理
-      if (process.env.NODE_OPTIONS === '--inspect') {
-        debug(httpServer)
-      }
 
       return httpServer
     })(http.createServer);

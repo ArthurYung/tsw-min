@@ -109,12 +109,12 @@ export const hack = <T extends typeof http.request>(
     timestamps.onSocket = new Date();
 
     if (!isIP(hostname)) {
+
       socket.once(
         "lookup",
         (err: Error, address: string, family: string | number, host: string): void => {
           timestamps.onLookUp = new Date();
           timestamps.dnsTime = timestamps.onLookUp.getTime() - timestamps.onSocket.getTime();
-
           logger.debug(
             `Dns lookup ${host} -> ${address || "null"}. Cost ${timestamps.dnsTime}ms`
           );
@@ -128,7 +128,6 @@ export const hack = <T extends typeof http.request>(
 
     socket.once("connect", (): void => {
       timestamps.socketConnect = new Date();
-
       logger.debug(
         `Socket connected. Remote: ${socket.remoteAddress}:${socket.remotePort}. Cost ${
           timestamps.socketConnect.getTime() - timestamps.onSocket.getTime()

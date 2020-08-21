@@ -8,4 +8,3 @@ exports.default = {
         limit: 100
     },
 };
-//# sourceMappingURL=config.js.map

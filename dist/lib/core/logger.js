@@ -103,4 +103,3 @@ if (!logger) {
     logger = new Logger();
 }
 exports.default = logger;
-//# sourceMappingURL=logger.js.map

@@ -96,6 +96,7 @@ export class Context {
 
 export default (): Context | null => {
   const context = currentDomain()
+
   if (!context) {
     return null;
   }

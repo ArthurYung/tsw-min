@@ -1,4 +1,4 @@
-import './core/hacks/async'
+import './core/hacks/async-hook'
 import * as winston from "winston";
 import * as Transport from "winston-transport";
 import logger from "./core/logger";
