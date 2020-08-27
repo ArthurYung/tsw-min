@@ -16,3 +16,4 @@ function checkExecArgs() {
 exports.isInspect = (function () {
     return checkNodeOptions() || checkExecArgs();
 })();
+//# sourceMappingURL=isInspect.js.map

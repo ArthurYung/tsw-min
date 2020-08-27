@@ -40,3 +40,4 @@ function consoleHack() {
     };
 }
 exports.consoleHack = consoleHack;
+//# sourceMappingURL=console.js.map

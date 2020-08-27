@@ -50,6 +50,10 @@ export const hack = <T extends typeof http.request>(
   originRequest: T,
   protocol: requestProtocol
 ): ((...args: unknown[]) => http.ClientRequest) => (...args): http.ClientRequest => {
+  if (!global.jswConfig.isEnabled) {
+    return originRequest.apply(this, args);
+  }
+
   let options: http.RequestOptions;
   if (typeof args[1] === "undefined" || typeof args[1] === "function") {
     // function request(options: RequestOptions | string | URL, callback?: (res: IncomingMessage) => void): ClientRequest;
@@ -73,6 +77,7 @@ export const hack = <T extends typeof http.request>(
 
   // Execute request
   const request: http.ClientRequest = originRequest.apply(this, args);
+
   // Execute capture
   captureOutgoing(request);
   const context = currentContext() || new Context();

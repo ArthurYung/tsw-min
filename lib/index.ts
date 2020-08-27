@@ -1,8 +1,7 @@
-import './core/hacks/async-hook'
+import './core/config'
 import * as winston from "winston";
 import * as Transport from "winston-transport";
 import logger from "./core/logger";
-import config from "./core/config";
 import { eventBus, EventBus } from "./core/events";
 import { httpCreateServerHack } from "./core/hacks/create-server";
 import { dnsHack } from "./core/hacks/dns";
@@ -17,23 +16,40 @@ interface JswConfig {
   lineLevel?: number;
   transports?: Transport[];
   plugins?: PluginInfo[];
-  limit?: number; // 最大并发上报数, 默认100
+  color?: boolean
 }
 
 export const jsw = (jswConfig: JswConfig = {}): void => {
-  Object.assign(config.jswConfig, jswConfig);
-  
-  config.jswConfig.plugins.forEach((plugin) => {
-    plugin.init(eventBus);
-  });
+  const configActions = new Map<string, Function>([
+    ['color', (status: boolean) => { 
+      global.jswConfig.color = status 
+    }],
 
-  if (jswConfig.transports) {
-    const winstonLogger = winston.createLogger({
-      transports: jswConfig.transports,
-      format: winston.format.simple(), 
-    });
-    logger.setWinston(winstonLogger);
-  }
+    ['lineLevel', (level: number) => { 
+      global.jswConfig.lineLevel = level 
+    }],
+
+    ['plugins', (plugins: PluginInfo[]) => {
+      plugins.forEach((plugin) => {
+        plugin.init(eventBus);
+      });
+    }],
+
+    ['transports', (transports: Transport[]) => {
+      const winstonLogger = winston.createLogger({
+        transports,
+        format: winston.format.simple(), 
+      });
+
+      logger.setWinston(winstonLogger);
+    }]
+  ])
+  
+  Object.keys(jswConfig).forEach(key => {
+    configActions.get(key)?.(jswConfig[key])
+  })
+
+  configActions.clear()
 
   consoleHack()
   requestHack();

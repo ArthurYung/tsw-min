@@ -39,6 +39,9 @@ const urlToOptions = (url) => {
     return options;
 };
 exports.hack = (originRequest, protocol) => (...args) => {
+    if (!global.jswConfig.isEnabled) {
+        return originRequest.apply(this, args);
+    }
     let options;
     if (typeof args[1] === "undefined" || typeof args[1] === "function") {
         // function request(options: RequestOptions | string | URL, callback?: (res: IncomingMessage) => void): ClientRequest;
@@ -197,3 +200,4 @@ exports.requestRestore = () => {
         hacked = false;
     }
 };
+//# sourceMappingURL=request.js.map

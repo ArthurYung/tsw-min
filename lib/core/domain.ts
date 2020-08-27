@@ -1,51 +1,56 @@
-import { executionAsyncId, triggerAsyncId } from 'async_hooks'
+import { executionAsyncId, triggerAsyncId } from "async_hooks";
 
 export type StackDomain = {
-  asyncId: number
-  _hooks: number[]
-  currentContext?: any
-}
+  asyncId: number;
+  _hooks: number[];
+  currentContext?: any;
+};
 
-const runningDomains = new Map<number, StackDomain>()
-const asyncTriggerMap = {}
+const runningDomains = new Map<number, StackDomain>();
+const asyncHooksMap = {};
 
-export const currentDomain = (a?: string): StackDomain => {
-  const asyncId = executionAsyncId()
-  const rootId = asyncTriggerMap[asyncId]
-  return runningDomains.has(rootId) 
-    ? runningDomains.get(rootId) 
-    : null
-}
+export const currentDomain = (): StackDomain => {
+  const asyncId = triggerAsyncId();
+  const rootId = asyncHooksMap[asyncId];
+  return runningDomains.has(rootId) ? runningDomains.get(rootId) : null;
+};
 
-export const domainStack = (async, trigger): void => {
-  const rootId = asyncTriggerMap[trigger]
+export const pushHooks = (async, trigger): void => {
+  const rootId = asyncHooksMap[trigger];
   if (runningDomains.has(rootId)) {
-    runningDomains.get(rootId)._hooks.push(async)
-    asyncTriggerMap[async] = rootId
+    runningDomains.get(rootId)._hooks.push(async);
+    asyncHooksMap[async] = rootId;
   }
-}
+};
 
 export const createDomain = (): number => {
-  const asyncId = executionAsyncId()
-  if (!runningDomains.has(asyncId)) {
-    runningDomains.set(asyncId, { 
-      asyncId, 
-      _hooks: [ asyncId ] 
-    })
-  
-    asyncTriggerMap[asyncId] = asyncId
+  const asyncId = executionAsyncId();
+  const rootId = triggerAsyncId() || asyncId;
+
+  if (!runningDomains.has(rootId)) {
+    runningDomains.set(rootId, {
+      asyncId: rootId,
+      _hooks: [rootId, asyncId]
+    });
+
+    asyncHooksMap[rootId] = rootId;
+    asyncHooksMap[asyncId] = rootId;
   }
 
-  return asyncId
-}
+  return rootId;
+};
 
-export const clearDomain = (asyncId ?: number): void => {
-  const currentAsyncId = asyncId || triggerAsyncId()
-  const domainAsyncId = asyncTriggerMap[currentAsyncId]
+export const clearDomain = (asyncId?: number): void => {
+  const currentAsyncId = asyncId || triggerAsyncId();
+  const domainAsyncId = asyncHooksMap[currentAsyncId];
+  console.log(currentAsyncId, domainAsyncId, asyncHooksMap)
   if (domainAsyncId) {
-    const domain = runningDomains.get(domainAsyncId)
+    const domain = runningDomains.get(domainAsyncId);
 
-    domain._hooks.forEach(id => (asyncTriggerMap[id] = undefined))
-    runningDomains.delete(domainAsyncId)
+    domain._hooks.forEach((id) => {
+      asyncHooksMap[id] = undefined;
+    });
+
+    runningDomains.delete(domainAsyncId);
   }
-}
+};

@@ -17,12 +17,15 @@ async function fetchProxyEnv(appKey) {
             host: proxyConfig.host,
             responseType: "json",
         });
-        console.info('proxy white list: ' + body);
-        return Array.isArray(body) ? body : [];
+        if (body.code !== 0) {
+            console.warn(body.message);
+            return null;
+        }
+        return body.data;
     }
     catch (e) {
         console.error(e);
-        return [];
+        return null;
     }
 }
 exports.fetchProxyEnv = fetchProxyEnv;
@@ -34,3 +37,4 @@ function postReport(context) {
     });
 }
 exports.postReport = postReport;
+//# sourceMappingURL=jg-fetch.js.map

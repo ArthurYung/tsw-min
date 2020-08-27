@@ -5,6 +5,7 @@ let consoleHacked = false;
 
 export function consoleHack(): void {
   if (consoleHacked) return;
+
   consoleHacked = true;
   console.__debug = console.debug;
   console.__log = console.log;

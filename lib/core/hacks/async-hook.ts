@@ -1,14 +1,17 @@
-import { domainStack,  } from '../domain'
-import { createHook, triggerAsyncId } from 'async_hooks'
+import { pushHooks } from '../domain'
+import { createHook } from 'async_hooks'
 
-createHook({
-  init(async, type, trigger) {
-    if (type === 'PROMISE') {
-      domainStack(async, trigger)
-    }
+const asyncHook = createHook({
+  init(async, _, trigger) {
+    pushHooks(async, trigger)
   },
-  before(asyncId) {
-    domainStack(asyncId, triggerAsyncId())
-  },
-}).enable()
+})
+
+export const enableHook = ():void => {
+  asyncHook.enable()
+}
+
+export const disableHook = ():void => {
+  asyncHook.disable()
+}
   

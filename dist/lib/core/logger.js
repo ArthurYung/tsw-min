@@ -6,7 +6,6 @@ const chalk = require("chalk");
 const Stream = require("stream");
 const callInfo_1 = require("./utils/callInfo");
 const context_1 = require("./context");
-const config_1 = require("./config");
 const isInspect_1 = require("./utils/isInspect");
 var LOG_LEVEL;
 (function (LOG_LEVEL) {
@@ -41,8 +40,11 @@ class Logger {
     setWinston(context) {
         this.winstonLogger = context;
     }
+    setColor(color) {
+        this.color = color;
+    }
     writeLog(str, type = "debug") {
-        const writeStr = this.formatStr({ str, type, color: isInspect_1.isInspect });
+        const writeStr = this.formatStr({ str, type, color: this.color });
         const context = context_1.default();
         if (context) {
             context.logs.push(writeStr);
@@ -61,7 +63,7 @@ class Logger {
         const showLineNumber = ((logType) => {
             if (isInspect_1.isInspect)
                 return true;
-            return LOG_LEVEL[logType] >= config_1.default.jswConfig.lineLevel;
+            return LOG_LEVEL[logType] >= global.jswConfig.lineLevel;
         })(info.type);
         // Formatter stackInfo to string
         const stackInfo = (() => {
@@ -101,5 +103,7 @@ exports.Logger = Logger;
 let logger;
 if (!logger) {
     logger = new Logger();
+    logger.setColor(isInspect_1.isInspect);
 }
 exports.default = logger;
+//# sourceMappingURL=logger.js.map

@@ -11,4 +11,12 @@ declare module NodeJS {
     currentContext?: any;
   }
 
+  interface Global {
+     jswConfig: {
+      lineLevel: number;
+      isEnabled: boolean;
+      color: boolean;
+    }
+  }
 }
+

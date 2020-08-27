@@ -8,24 +8,29 @@ class JswReportPlugin {
   constructor(config) {
     this.getUid = config.getUid || (() => {});
     this.appKey = config.appKey;
-    this.envList = []
+    this.envList = [];
   }
 
   public async init(events) {
     events.on("REQUEST_START", ({ req, context }) => {
-      const uid = this.getUid(req);
-      context.isReport = this.checkDyeingUid(uid)
-      context.env = uid;
+      if (!context) return
+      try {
+        const uid = this.getUid(req);
+        context.isReport = this.checkDyeingUid(uid)
+        context.env = uid;
+      } catch(e) {
+        console.warn('get uid err: ' + e.message)
+      }
     })
 
     events.on("RESPONSE_FINISH", ({ context }) => {
+      console.log(context)
+      if (!context) return
       if (context.isReport) {
         context.appKey = this.appKey;
         postReport(context)
       }
     });
-
-    // events.on("")
 
     await this.updateProxyEnv()
 
@@ -35,7 +40,14 @@ class JswReportPlugin {
   }
 
   public async updateProxyEnv() {
-    this.envList = await fetchProxyEnv(this.appKey);
+    const envConfig = await fetchProxyEnv(this.appKey)
+    if (envConfig) {
+      this.envList = envConfig.envList;
+      console.log(envConfig.envList)
+      if(global.jswConfig) {
+        global.jswConfig.isEnabled = envConfig.enabled
+      }
+    }
   }
 
   public checkDyeingUid(uid) {

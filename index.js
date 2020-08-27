@@ -19,17 +19,18 @@ jsw({
         }
         return null
       },
-      appKey: "8e0102b37c08f6da87661c5346703d004fd062c2",
+      appKey: "57672fd1ddcf57241eb26e9185323d9a4679e034",
     }),
   ],
-  lineLevel: 30,
+  lineLevel: 10,
+  color: true
 });
 
 
 const server = http.createServer((request, response) => {
 
   
-   if(request.url === '/post/json') {
+  //  if(request.url === '/post/json') {
     const dataEncoded = {
       appkey: 'test-appkey',
       password: 'testPassowrd',
@@ -48,11 +49,11 @@ const server = http.createServer((request, response) => {
         response.end()
       })
 
-  } else {
-    console.log('test')
-    response.writeHead(200);
-    response.end()
-  }
+  // } else {
+    // console.log('test')
+    // response.writeHead(204);
+    // response.end('hahahah')
+  // }
 });
 
 

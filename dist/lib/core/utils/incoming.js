@@ -31,3 +31,4 @@ exports.captureReadableStream = (stream) => {
     return info;
 };
 exports.captureIncoming = (response) => exports.captureReadableStream(response);
+//# sourceMappingURL=incoming.js.map

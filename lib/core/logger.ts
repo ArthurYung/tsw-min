@@ -4,7 +4,6 @@ import { Logger as WinstonLogger } from "winston";
 import * as Stream from 'stream'
 import getStackInfo from "./utils/callInfo";
 import currentContext from "./context";
-import config from "./config";
 import { isInspect } from "./utils/isInspect";
 
 enum LOG_LEVEL {
@@ -23,6 +22,7 @@ enum LOG_COLOR {
 
 export class Logger {
   public winstonLogger: WinstonLogger;
+  public color: boolean;
 
   public debug(message: string) {
     this.writeLog(message, "debug");
@@ -48,8 +48,12 @@ export class Logger {
     this.winstonLogger = context;
   }
 
+  public setColor(color: boolean):void {
+    this.color = color
+  }
+
   public writeLog(str: string, type = "debug") {
-    const writeStr = this.formatStr({ str, type, color: isInspect });
+    const writeStr = this.formatStr({ str, type, color: this.color });
     const context = currentContext();
     if (context) {
       context.logs.push(writeStr);
@@ -76,7 +80,7 @@ export class Logger {
 
     const showLineNumber = ((logType) => {
       if (isInspect) return true
-      return LOG_LEVEL[logType] >= config.jswConfig.lineLevel
+      return LOG_LEVEL[logType] >= global.jswConfig.lineLevel
     })(info.type)
   
     // Formatter stackInfo to string
@@ -124,6 +128,7 @@ let logger: Logger;
 
 if (!logger) {
   logger = new Logger()
+  logger.setColor(isInspect)
 }
 
 export default logger;

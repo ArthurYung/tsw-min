@@ -77,3 +77,4 @@ exports.dnsRestore = () => {
         dnsHacked = false;
     }
 };
+//# sourceMappingURL=dns.js.map
