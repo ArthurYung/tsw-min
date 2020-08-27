@@ -32,7 +32,6 @@ exports.createDomain = () => {
 exports.clearDomain = (asyncId) => {
     const currentAsyncId = asyncId || async_hooks_1.triggerAsyncId();
     const domainAsyncId = asyncHooksMap[currentAsyncId];
-    console.log(currentAsyncId, domainAsyncId, asyncHooksMap);
     if (domainAsyncId) {
         const domain = runningDomains.get(domainAsyncId);
         domain._hooks.forEach((id) => {
