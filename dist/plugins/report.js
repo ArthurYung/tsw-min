@@ -5,6 +5,7 @@ class JswReportPlugin {
     constructor(config) {
         this.getUid = config.getUid || (() => { });
         this.appKey = config.appKey;
+        this.assets = [];
         this.envList = [];
     }
     async init(events) {
@@ -21,7 +22,6 @@ class JswReportPlugin {
             }
         });
         events.on("RESPONSE_FINISH", ({ context }) => {
-            console.log(context);
             if (!context)
                 return;
             if (context.isReport) {

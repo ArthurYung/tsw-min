@@ -1,6 +1,6 @@
 {
   "name": "@jg/node-log",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "",
   "main": "./dist/lib/index.js",
   "scripts": {
@@ -43,6 +43,7 @@
     "eslint-config-airbnb": "^18.2.0",
     "eslint-import-resolver-typescript": "^2.0.0",
     "eslint-plugin-import": "^2.22.0",
+    "express": "^4.17.1",
     "husky": "^4.2.5",
     "jest": "^26.1.0",
     "lint-staged": "^10.2.11",

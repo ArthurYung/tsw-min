@@ -15,10 +15,10 @@ const ip_1 = require("ip");
 const incoming_1 = require("../utils/incoming");
 const outgoing_1 = require("../utils/outgoing");
 const domain_1 = require("../domain");
-const async_hooks_1 = require("async_hooks");
 let httpCreateServerHacked = false;
 let originHttpCreateServer = null;
 exports.httpCreateServerHack = () => {
+    console.log('start hooke');
     if (!httpCreateServerHacked) {
         httpCreateServerHacked = true;
         originHttpCreateServer = http.createServer;
@@ -56,7 +56,6 @@ exports.httpCreateServerHack = () => {
                     res.once("finish", () => {
                         var _a;
                         const context = (_a = domain_1.currentDomain()) === null || _a === void 0 ? void 0 : _a.currentContext;
-                        console.log(async_hooks_1.executionAsyncId(), async_hooks_1.triggerAsyncId());
                         if (context && context.isReport) {
                             timestamps.requestFinish = new Date();
                             const requestInfo = incoming_1.captureIncoming(req);

@@ -20,6 +20,7 @@ let originHttpCreateServer = null;
 
 
 export const httpCreateServerHack = (): void => {
+  console.log('start hooke')
   if (!httpCreateServerHacked) {
     httpCreateServerHacked = true;
     originHttpCreateServer = http.createServer;
@@ -68,7 +69,6 @@ export const httpCreateServerHack = (): void => {
 
           res.once("finish", () => {
             const context = currentDomain()?.currentContext;
-            console.log(executionAsyncId(), triggerAsyncId())
             if (context && context.isReport) {
               timestamps.requestFinish = new Date();
               const requestInfo = captureIncoming(req);

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.consoleHack = void 0;
+exports.consoleHackDestroy = exports.consoleHack = void 0;
 const logger_1 = require("../logger");
 const util = require("util");
 let consoleHacked = false;
@@ -40,4 +40,16 @@ function consoleHack() {
     };
 }
 exports.consoleHack = consoleHack;
+function consoleHackDestroy() {
+    if (!consoleHacked)
+        return;
+    consoleHacked = false;
+    console.debug = console.__debug;
+    console.log = console.__log;
+    console.warn = console.__warn;
+    console.info = console.__info;
+    console.error = console.__error;
+    process.stderr.write = process.stderr.originWrite;
+}
+exports.consoleHackDestroy = consoleHackDestroy;
 //# sourceMappingURL=console.js.map

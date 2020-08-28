@@ -3,11 +3,13 @@ import { fetchProxyEnv, postReport } from './jg-fetch'
 class JswReportPlugin {
   public getUid: (res: http.RequestOptions) => void;
   public appKey: string;
+  public assets: string[];
   public envList: any[]; 
 
   constructor(config) {
     this.getUid = config.getUid || (() => {});
     this.appKey = config.appKey;
+    this.assets = [];
     this.envList = [];
   }
 
@@ -24,7 +26,6 @@ class JswReportPlugin {
     })
 
     events.on("RESPONSE_FINISH", ({ context }) => {
-      console.log(context)
       if (!context) return
       if (context.isReport) {
         context.appKey = this.appKey;

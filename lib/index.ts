@@ -5,7 +5,7 @@ import logger from "./core/logger";
 import { eventBus, EventBus } from "./core/events";
 import { httpCreateServerHack } from "./core/hacks/create-server";
 import { dnsHack } from "./core/hacks/dns";
-import { consoleHack } from "./core/hacks/console";
+import { consoleHack, consoleHackDestroy } from "./core/hacks/console";
 import { requestHack } from "./core/hacks/request";
 
 interface PluginInfo {

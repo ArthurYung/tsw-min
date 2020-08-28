@@ -51,3 +51,17 @@ export function consoleHack(): void {
     return true;
   };
 }
+
+export function consoleHackDestroy():void {
+  if (!consoleHacked) return;
+
+  consoleHacked = false
+
+  console.debug = console.__debug;
+  console.log = console.__log;
+  console.warn = console.__warn;
+  console.info = console.__info;
+  console.error = console.__error;
+
+  process.stderr.write = (process.stderr as any).originWrite;
+}
